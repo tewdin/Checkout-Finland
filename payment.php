@@ -4,7 +4,46 @@ PHP integration for Checkout Finland
 @author: Timo Anttila, info@tuspe.com
 */
 
-// Function for calculate HMAC
+$cart_data = array(
+    "checkout_total" => 90,
+    "products" => array(
+        "items" => array(
+            array(
+                "title" => "Test 1",
+                "sku" => 1234,
+                "price" => 15,
+                "amount" => 2,
+                "total" => 30,
+                "vat" => 24
+            ),
+            array(
+                "title" => "Test 2",
+                "sku" => 2468,
+                "price" => 20,
+                "amount" => 3,
+                "total" => 60,
+                "vat" => 10
+            )
+        ),
+        "test" => array(
+            1234,
+            2468
+        )
+    ),
+    "customer" => array(
+        "name" => "Timo Anttila",
+        "phone" => "+35841234567",
+        "email" => "info@example.com",
+        "street" => "Testikuja 8",
+        "postal" => 21600,
+        "area" => "Rauma",
+        "delivery_street" => "Testikuja 8",
+        "delivery_postal" => 21600,
+        "delivery_area" => "Rauma"
+    )
+);
+
+// Function for HMAC (made by CF)
 function calculateHmac($secret, $params, $body = '')
 {
     // Keep only checkout- params, more relevant for response validation. Filter query
@@ -45,15 +84,15 @@ $products = array();
 foreach($cart_data["products"][0] as $item){
     $products[] = array(
         "unitPrice" => $item["price"],
-        "units": $item["amount"],
-        "vatPercentage": $item["vat"],
-        "productCode": $item["sku"],
-        "deliveryDate": $time,
-        "description": $item["title"],
-        "category": $item["category"],
-        "merchant": $merchant,
-        "stamp": $time,
-        "reference": $sku
+        "units" => $item["amount"],
+        "vatPercentage" => $item["vat"],
+        "productCode" => $item["sku"],
+        "deliveryDate" => $time,
+        "description" => $item["title"],
+        "category" => $item["category"],
+        "merchant" => $merchant,
+        "stamp" => $time,
+        "reference" => $sku
     );
 }
 
@@ -77,33 +116,30 @@ $json = json_encode(array(
         "postalCode" => $cart_data["customer"]["delivery_postal"],
         "city" => $cart_data["customer"]["delivery_area"],
 //      "county" => $cart_data["customer"]["delivery_street"],
-        "country": "FI"
+        "country" => "FI"
     ),
     "invoicingAddress" => array(
         "streetAddress" => $cart_data["customer"]["street"],
         "postalCode" => $cart_data["customer"]["postal"],
         "city" => $cart_data["customer"]["area"],
-        "country": "FI"
+        "country" => "FI"
     ),
     "redirectUrls" => array(
-        "success": $page->url,
-        "cancel": $page->url
+        "success" => "https://example.com/checkout",
+        "cancel" => "https://example.com/checkout"
     ),
     "callbackUrls" => array(
-        "success": $page->url,
-        "cancel": $page->url
+        "success" => "https://example.com/checkout",
+        "cancel" => "https://example.com/checkout"
     )
 ));
-
-
-$signature = hash_hmac('sha1', $time, $password);
 
 $headers = [
     "checkout-account" => $merchant,
     "checkout-algorithm" => "sha256",
-    "checkout-method" => "POST",
-    "checkout-nonce" => "564635208570151",
-    "checkout-timestamp" => date("G"),
+    "checkout-method" => "post",
+    "checkout-nonce" => $merchant . $time,
+    "checkout-timestamp" => date("c"),
     "content-type" => "application/json; charset=utf-8"
 ];
 
@@ -119,8 +155,7 @@ curl_setopt_array($ch, array(
 $result=curl_exec ($ch);
 curl_close ($ch);
 $result = json_decode($result, true);
-if($user->hasRole("superuser")){
-    echo "<pre>";
-    print_r($result);
-    echo "</pre>";
-}
+
+echo "<pre>";
+print_r($result);
+echo "</pre>";
