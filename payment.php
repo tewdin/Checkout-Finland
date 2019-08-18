@@ -45,9 +45,9 @@ $cart_data = [
 ];
 $lang = "fi";
 
-// Use test IDs if no merchant IDs are found (ProcessWire)
-if($page->shop_merchant_id) $merchant = $page->shop_merchant_id; else $merchant = "375917";
-if($page->shop_merchant_secret) $password = $page->shop_merchant_secret; else $password = "SAIPPUAKAUPPIAS";
+// Use test IDs if no merchant IDs are found
+$merchant = "375917";
+$password = "SAIPPUAKAUPPIAS";
 
 // Explode the customer's name and fix for the company ID if needed
 $name = explode(" ", $cart_data["customer"]["name"]);
@@ -111,7 +111,7 @@ $json = json_encode([
     ]
 ], JSON_UNESCAPED_SLASHES);
 
-$headers = [
+$headers = $check = [
     "checkout-account:$merchant",
     "checkout-algorithm:sha256",
     "checkout-method:POST",
@@ -120,7 +120,7 @@ $headers = [
 ];
 
 // JSON body to $check
-$check = array_push($headers, $json);
+array_push($check, $json);
 
 // Content type and signature to the headers
 $headers[] = "content-type:application/json;charset=utf-8";
@@ -142,10 +142,5 @@ curl_setopt_array($ch, $opt);
 $result = json_decode(curl_exec($ch),true);
 curl_close($ch);
 
-/*
 header("Location: ". $result["href"]);
 die();
-*/
-echo "<pre>";
-print_r($result);
-echo "</pre>";
