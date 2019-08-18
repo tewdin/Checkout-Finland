@@ -6,6 +6,8 @@ The client will try to send an HTTP POST by using cURL and if successful, the cu
 
 [Checkout Finland](https://www.checkout.fi/) is a Payment Service Provider with which e-commerce merchants can accept payments mobile and online. Documentation and some examples about PSP API can be found [here](https://checkoutfinland.github.io/psp-api/#/).
 
+If customer for some reason abandons cart before payment is processed Checkout Finland will have saved that cart as Unprocessed.
+
 ## Requirements
 
 - PHP <= 5
