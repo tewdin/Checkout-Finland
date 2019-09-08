@@ -58,15 +58,16 @@ $time = time();
 
 // Foreach products to array
 $products = array();
+$del = date("Y-m-d", strtotime("+2 Weeks"));
 foreach($cart_data["products"]["items"] as $item){
     $products[] = array(
-        "unitPrice" => $item["price"],
+        "unitPrice" => (float)$item["price"] * 100,
         "units" => $item["amount"],
         "vatPercentage" => $item["vat"],
         "productCode" => $item["sku"],
         "description" => $item["title"],
 //      "category" => $item["category"],
-        "deliveryDate" => date("Y-m-d", strtotime("+2 Weeks")),
+        "deliveryDate" => $del,
         "merchant" => $merchant,
         "stamp" => "$time",
         "reference" => $item["sku"]
@@ -77,7 +78,7 @@ foreach($cart_data["products"]["items"] as $item){
 $json = json_encode([
     "stamp" => $merchant . $time,
     "reference" => "$time",
-    "amount" => $cart_data["checkout_total"],
+    "amount" => (float)$cart_data["checkout_total"] * 100,
     "currency" => "EUR",
     "language" => strtoupper($lang),
     "items" => $products,
